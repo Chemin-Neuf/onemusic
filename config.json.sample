@@ -1,0 +1,4 @@
+{
+	"fire_api_key": "[firebase_api_key]",
+	"fire_root_url": "https://firestore.googleapis.com/v1/projects/[myproject]/databases/(default)"
+}
