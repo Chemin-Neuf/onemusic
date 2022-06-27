@@ -11,7 +11,7 @@ let db_path = "";
 let command = "";
 let params = [];
 
-let DEBUG = true;
+let DEBUG = false;
 
 let db = {};
 
