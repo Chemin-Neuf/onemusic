@@ -6,3 +6,4 @@ node_modules
 config.json
 img_db.json
 SONGBOOK_FIRE_AUTH_CACHE.json
+*_old

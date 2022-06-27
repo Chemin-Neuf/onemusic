@@ -1,4 +1,4 @@
-const SCRIPT_VERSION = "13";
+const SCRIPT_VERSION = "14";
 const fs = require('fs');
 const path = require('path');
 const firelib = require('./firelib.js');
@@ -11,7 +11,7 @@ let db_path = "";
 let command = "";
 let params = [];
 
-let DEBUG = false;
+let DEBUG = true;
 
 let db = {};
 
@@ -380,23 +380,38 @@ async function getSongIDsInBook(book_id, token) {
 		} else {
 			titre = removeDiacritics(song.title ? song.title : "")
 		}
+		let origTitle = titre;
 		// case of Psalms
 		if (song.ref && !song.ref[0]) console.log(song)
 		if (song.ref && song.ref[0] && song.ref[0].chapter && song.ref[0].book == 'Ps') {
-			let psalm_title = titre.replace(/[\d+\)\(\.\-\_ab]+/g, '').replace(/\s{2,}/g, ' ').trim();
+			let titre_index = titre.indexOf(" ");
+			let psalm_title = titre.substring(0, titre_index); //titre.replace(/[\d+\)\(\.\-\:\_ab]+/g, '').replace(/\s{2,}/g, ' ').trim();
+			
 			let num = song.ref[0].chapter;
 			if (num < 10) num = '00' + num;
 			else if (num < 100) num = '0' + num;
+			
+			if (song.ref[0].chapter == 119 && song.ref[0].verses) {
+				let subnum = song.ref[0].verses.split('-')[0]
+				if (subnum < 10) subnum = '000' + subnum;
+				else if (subnum < 100) subnum = '00' + subnum;
+				else subnum = '0' + subnum
+				num = num + '.' + subnum
+			}
+			
  			titre = psalm_title + ' ' + num;
 		}
 		// case of AT/NT
-		if (song.psalmId && ["at", "nt"].includes(song.psalmId.substr(0,2))) {
-			titre = titre.substr(0,2) + ' ' + song.psalmId.substr(2);
+		if (song.psalmId && ["at", "nt"].includes(song.psalmId.substring(0,2))) {
+			let num = song.psalmId.substring(2).replace(/a/, '.1').replace(/b/, '.2');
+			if (num < 10) num = '00' + num;
+			else if (num < 100) num = '0' + num;			
+ 			titre = titre.substring(0,2) + ' ' + num;
 		}
-		song_plus.push({orgKey: song.orgKey, title: titre})
+		song_plus.push({orgKey: song.orgKey, title: titre, orig: origTitle})
 	}
 	song_plus = song_plus.sortBy2(el => el.title)
-	debug(song_plus.map(el => el.orgKey + "_" + el.title))
+	debug(song_plus.map(el => el.orgKey + "_" + el.title + "__" + el.orig).slice(200))
 	
 	let songs_book2 = song_plus.concat(complete_masses)
 	let songs_final = songs_book2.map(el => el.orgKey || el.id).filter(el => !!el);
