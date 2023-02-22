@@ -1,4 +1,4 @@
-const firelib_version = "14";
+const firelib_version = "15";
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -394,6 +394,55 @@ async function getSongBookSongFromFire(songbook_id, song_id, token_str, opt = {}
 
 
 
+// ==================================================
+// TRADUCTIONS
+// ==================================================
+async function loadTranslationsFromFire(token_str, opt = {}) {
+	let url = CONFIG.fire_root_url + "/documents/traductions?pageSize=4000";
+	
+	opt = {
+		cache: true,
+		...opt
+	}
+	
+	// trad cache path
+	let trad_path = path.join(__dirname, "translations.json");
+	//if (fs.existsSync(song_cache_path) && opt.cache) return require(song_cache_path);
+	
+	let res;
+	try {
+		res = await axios.get(url, 
+			{
+				headers: {
+					"User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
+					"Content-Type": "application/json",
+					"Authorization": "Bearer " + token_str,
+				}
+			}
+		)
+	} catch(e) {
+		return "ERROR " + e.message;
+	}
+	
+	let data = parseFireJson(res.data);
+
+	// Transform to proper format
+	let trads = {};
+	for (let t of Object.values(data)) {
+		trads[t.title] = t.i18n;
+		if (!trads[t.type]) trads[t.type] = {};
+		trads[t.type][t.title] = t.i18n;
+	}
+
+
+	// write in cache
+	fs.writeFileSync(trad_path, JSON.stringify(trads, null, '\t'));
+
+	return trads;
+}
+
+
+
 
 function parseFireJson(o) {
 	let doc_list = (!o.documents) ? [o] : o.documents;
@@ -440,4 +489,5 @@ module.exports = {
 	getSongBookSongFromFire, // gets song metadata for a specific songbook
 	getSongFromFire,
 	getPsalm,
+	loadTranslationsFromFire,
 }

@@ -1,6 +1,6 @@
-translations.json
+translations*.json
 SONGS_CACHE
-DB
+DB*
 IMG
 node_modules
 config.json

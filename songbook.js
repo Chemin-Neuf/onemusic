@@ -1,4 +1,4 @@
-const SCRIPT_VERSION = "14";
+const SCRIPT_VERSION = "15";
 const fs = require('fs');
 const path = require('path');
 const firelib = require('./firelib.js');
@@ -55,7 +55,7 @@ async function main() {
 		if (command == 'script_version') return console.log(SCRIPT_VERSION);
 		if (command == 'getSongbooksLight') return getSongbooksLight();
 		if (command == 'titles2id') return (params.length == 0) ? titles2id(): titles2id(params[0]);
-	} else if (['titles2id', 'downloadBooksongs', 'getSurthemeTags', 'getSongRaw', 'getPsalmRaw', 'getSongIDsInBook', 'getSongsRubriques', 'getSongsSousRubriques', 'getSongsOrders', 'getSongsLangOrder', 'getRubriques', 'getSongBookSongAttr', 'getBookLang', 'getBookSousRubriques', 'getBookThemesSongs', 'getDbAttr', 'getSongsRaw', 'getSongBookSongFromFire'].indexOf(command) >= 0) {
+	} else if (['titles2id', 'downloadBooksongs', 'getSurthemeTags', 'getSongRaw', 'getPsalmRaw', 'getSongIDsInBook', 'getSongsRubriques', 'getSongsSousRubriques', 'getSongsOrders', 'getSongsLangOrder', 'getRubriques', 'getSongBookSongAttr', 'getBookLang', 'getBookSousRubriques', 'getBookThemesSongs', 'getDbAttr', 'getSongsRaw', 'getSongBookSongFromFire', 'loadTranslationsFromFire'].indexOf(command) >= 0) {
 		if (params.length == 1) {
 			//console.log("PARAM0", typeof params[0], params[0], "\n");
 			if (command == 'titles2id') return titles2id(params[0]); // not used anymore ?
@@ -70,6 +70,7 @@ async function main() {
 			if (command == 'getBookThemesSongs') return envoyer(getBookThemesSongs(params[0]));
 			if (command == 'getDbAttr') return getDbAttr(params[0]);
 			if (command == 'getSurthemeTags') return envoyer(getSurthemeTags(params[0]));
+			if (command == 'loadTranslationsFromFire') return envoyer(await loadTranslationsFromFire(params[0]));
 		} else if (params.length == 2) {
 			if (command == 'downloadBooksongs') return downloadBooksongs(params[0], params[1]);
 			if (command == 'getSongIDsInBook') return getSongIDsInBook(params[0], params[1]);
@@ -433,6 +434,11 @@ async function getSongsRaw(ids_list, token) {
 async function getSongBookSongFromFire(songbook_id, song_id, token) {
 	let songmeta = await firelib.getSongBookSongFromFire(songbook_id, song_id, token, {cache:false});
 	return songmeta;
+}
+
+async function loadTranslationsFromFire(token) {
+	let tr = await firelib.loadTranslationsFromFire(token, {cache:false});
+	return tr;
 }
 
 
